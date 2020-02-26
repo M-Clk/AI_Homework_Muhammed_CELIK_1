@@ -13,7 +13,6 @@ namespace EigthPuzzleWithAStarAlgorithm
             GoalState = goalState;
             GX = gX;
             CalculateHX();
-            LoadPossibleNextSteps();
         }
         void CalculateHX()
         {
@@ -28,9 +27,9 @@ namespace EigthPuzzleWithAStarAlgorithm
         public int FX { get => GX + HX; }
         public List<Step> NextSteps { get; private set; } = new List<Step>();
         public Step ParentStep { get; set; }
-        private void LoadPossibleNextSteps()
+        public void LoadPossibleNextSteps()
         {
-            if (IsSucceed) return;
+            if (NextSteps.Any()) return;
             var StepId = 0;
             if (CanMoveUp())
                 NextSteps.Add(new Step(state: Move(BlankIndex(), BlankIndex() - 3), GoalState, GX + 1) { ParentStep = this, StepId = ++StepId });
@@ -55,5 +54,11 @@ namespace EigthPuzzleWithAStarAlgorithm
         private bool CanMoveRight() => BlankIndex() % 3 != 2;
         public bool IsFinished { get => !NextSteps.Any(); }
         public bool IsSucceed { get => HX == 0; }
+        public bool CompareState(int[] state)
+        {
+            for (int i = 0; i < State.Length; i++)
+                if (state[i] != State[i]) return false;
+            return true;
+        }
     }
 }

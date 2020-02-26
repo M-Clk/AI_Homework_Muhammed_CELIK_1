@@ -14,6 +14,7 @@ namespace EigthPuzzleWithAStarAlgorithm
         int[] initialState;
         List<int[]> AllStates = new List<int[]>();
         public bool IsSucceed { get; private set; }
+        Step currentStep;
 
         public StepManager(int[] _initialState, int[] _goalState)
         {
@@ -24,19 +25,34 @@ namespace EigthPuzzleWithAStarAlgorithm
         {
             var rootStep = new Step(state: initialState, goalState: goalState, 0);
             openedSteps.Add(rootStep);
-            var currentStep = FindBestNextStep();
-            while (!currentStep.IsFinished || !currentStep.IsSucceed)
+            currentStep = rootStep;
+            while (openedSteps.Any() && (!currentStep.IsFinished || !currentStep.IsSucceed))
             {
                 DeleteStepFromOpenedListAddToClosedList(currentStep);
-                AllStates.Add(currentStep.State);
-                openedSteps.AddRange(currentStep.NextSteps);
-                currentStep = FindBestNextStep();
+                currentStep = FindBestNextStep()??currentStep;//Null donerse artik acik listede step kalmamistir dolayisiyla bir daha donguye giremeyecek. Dolayisiyla currentStep yine kullanilacagindan null a esitleme
             }
+            if (currentStep.IsSucceed)
+            {
+                var tempStep = currentStep;
+                while (tempStep!=null)
+                {
+                    AllStates.Add(tempStep.State);
+                    tempStep = tempStep.ParentStep;
+                }
+            }     
             IsSucceed = currentStep.IsSucceed;
             return AllStates;
         }
-        Step FindBestNextStep()=>
-            openedSteps.OrderBy(step => step.FX).FirstOrDefault();
+        Step FindBestNextStep()
+        {
+            currentStep.LoadPossibleNextSteps();
+            var validNextSteps = currentStep.NextSteps.Where(nextStep =>
+            !closedSteps.Where(closedStep=>closedStep.CompareState(nextStep.State)).Any()); //Sonraki adimlar kapali listede olabilir onlari filtreleyerek openListe sonraki adimlari ekle
+
+            openedSteps.AddRange(validNextSteps.Where(step=>!openedSteps.Where(stp=>step.CompareState(stp.State)).Any()));
+            return openedSteps.OrderBy(step => step.FX).FirstOrDefault(); //FX=HX+GX degeri en az olani gonder
+        }
+
         void DeleteStepFromOpenedListAddToClosedList(Step step)
         {
             var willBeDeletedStep = openedSteps.Where(stp =>
@@ -45,10 +61,6 @@ namespace EigthPuzzleWithAStarAlgorithm
                 .FirstOrDefault();
             closedSteps.Add(willBeDeletedStep);
             openedSteps.Remove(willBeDeletedStep);
-        }
-        void AddStepsToOpenedList(List<Step> steps)
-        {
-            
         }
     }
 }

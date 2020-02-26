@@ -17,36 +17,24 @@ namespace EigthPuzzleWithAStarAlgorithm
         private void Form1_Load(object sender, EventArgs e)
         {
             int[] goalState = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 0 };
-            int[] initialState = new int[] { 1, 2, 3, 4, 5, 6, 0, 7, 8 };
+            int[] initialState = new int[] { 1, 4, 3, 2, 5, 6, 0, 7, 8 };
 
-            var rootStep = new Step(state: initialState, goalState: goalState, 0);
-            var closedSteps = new List<Step> { rootStep };
-            var openedSteps = new List<Step>();
             //TODO A* algoritmasina gore donguye koy. Acik ve kapali liste kavramlarini iyice anlamaya calis. 
 
-            var lbl = new Label() { AutoSize = true };
-            flowLayoutPanel1.Controls.Add(lbl);
-            ShowStep(initialState, lbl);
+            Label lbl;
+            var stepManager = new StepManager(initialState, goalState);
+            List<int[]> states = stepManager.SolveProblem();
 
-            while (!rootStep.IsFinished || !rootStep.IsSucceed)
+            foreach (var item in states)
             {
-
-                openedSteps.AddRange(rootStep.NextSteps);
-                var currentStep = openedSteps.Find()
-                ClosedSteps.Add(currentStep);
                 lbl = new Label() { AutoSize = true };
                 flowLayoutPanel1.Controls.Add(lbl);
-                ShowStep(rootStep.State, lbl);
+                ShowStep(item, lbl);
             }
-            if (rootStep.IsSucceed) MessageBox.Show("Bulmaca cozuldu!!");
+            if (stepManager.IsSucceed) MessageBox.Show("Bulmaca cozuldu!!");
             else MessageBox.Show("Yol bulunamadi.");
 
             ShowStep(goalState, label1);
-        }
-
-        Step FindNextStepByLessFScore()
-        {
-            
         }
 
         void ShowStep(int[] state, Label label)
