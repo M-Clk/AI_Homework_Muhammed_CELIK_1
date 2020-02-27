@@ -29,7 +29,7 @@ namespace EigthPuzzleWithAStarAlgorithm
             while (openedSteps.Any() && (!currentStep.IsFinished || !currentStep.IsSucceed))
             {
                 DeleteStepFromOpenedListAddToClosedList(currentStep);
-                currentStep = FindBestNextStep()??currentStep;//Null donerse artik acik listede step kalmamistir dolayisiyla bir daha donguye giremeyecek. Dolayisiyla currentStep yine kullanilacagindan null a esitleme
+                currentStep = FindBestNextStep()??currentStep;//Null donerse artik acik listede step kalmamistir dolayisiyla bir daha donguye giremeyecek. currentStep yine kullanilacagindan null a esitleme
             }
             if (currentStep.IsSucceed)
             {
@@ -41,6 +41,7 @@ namespace EigthPuzzleWithAStarAlgorithm
                 }
             }     
             IsSucceed = currentStep.IsSucceed;
+            AllStates.Reverse();
             return AllStates;
         }
         Step FindBestNextStep()
@@ -49,7 +50,7 @@ namespace EigthPuzzleWithAStarAlgorithm
             var validNextSteps = currentStep.NextSteps.Where(nextStep =>
             !closedSteps.Where(closedStep=>closedStep.CompareState(nextStep.State)).Any()); //Sonraki adimlar kapali listede olabilir onlari filtreleyerek openListe sonraki adimlari ekle
 
-            openedSteps.AddRange(validNextSteps.Where(step=>!openedSteps.Where(stp=>step.CompareState(stp.State)).Any()));
+            openedSteps.AddRange(validNextSteps.Where(step=>!openedSteps.Where(stp=>step.CompareState(stp.State)).Any()));//Sonraki adimlar arasinda openedSteps Listesi icinde olan olabilir onlari ihmal ederek openedListe ekle
             return openedSteps.OrderBy(step => step.FX).FirstOrDefault(); //FX=HX+GX degeri en az olani gonder
         }
 
